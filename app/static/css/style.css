@@ -1,0 +1,63 @@
+:root {
+  --brand: #0d6efd;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.navbar-brand {
+  letter-spacing: -0.3px;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header.bg-dark {
+  background: #1e1e2e !important;
+}
+
+pre {
+  border-radius: 0 0 12px 12px;
+}
+
+.btn-xs {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+.example-btn {
+  font-size: 0.8rem;
+  border-radius: 20px;
+}
+
+.progress {
+  border-radius: 8px;
+}
+
+.badge {
+  font-weight: 500;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+footer {
+  font-size: 0.82rem;
+}

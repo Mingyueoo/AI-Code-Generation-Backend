@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AI Coding Assistant{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{{ url_for('web.index') }}">
+      <i class="bi bi-cpu-fill me-2 text-primary"></i>AI Coding Assistant
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'web.index' %}active{% endif %}" href="{{ url_for('web.index') }}">
+            <i class="bi bi-house me-1"></i>Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'web.history' %}active{% endif %}" href="{{ url_for('web.history') }}">
+            <i class="bi bi-clock-history me-1"></i>History
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'web.dashboard' %}active{% endif %}" href="{{ url_for('web.dashboard') }}">
+            <i class="bi bi-bar-chart-fill me-1"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#apiModal">
+            <i class="bi bi-code-slash me-1"></i>API Docs
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<!-- API Docs Modal -->
+<div class="modal fade" id="apiModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title"><i class="bi bi-code-slash me-2"></i>REST API Reference</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered table-sm">
+          <thead class="table-dark"><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge bg-success">POST</span></td><td><code>/api/prompts</code></td><td>Create prompt & generate code</td></tr>
+            <tr><td><span class="badge bg-primary">GET</span></td><td><code>/api/prompts</code></td><td>List prompts (paginated, filterable)</td></tr>
+            <tr><td><span class="badge bg-primary">GET</span></td><td><code>/api/prompts/{id}</code></td><td>Get single prompt with generations</td></tr>
+            <tr><td><span class="badge bg-success">POST</span></td><td><code>/api/prompts/{id}/evaluate</code></td><td>Evaluate generated code</td></tr>
+            <tr><td><span class="badge bg-primary">GET</span></td><td><code>/api/analytics</code></td><td>Get system analytics</td></tr>
+          </tbody>
+        </table>
+        <h6 class="mt-3">Example: Generate Code</h6>
+        <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST http://localhost:5000/api/prompts \
+  -H "Content-Type: application/json" \
+  -d '{"prompt_text": "plot a bar chart", "model_name": "mock-gpt"}'</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="text-center text-muted py-4 mt-4 border-top">
+  <small>AI Coding Assistant &mdash; Full-Stack Python Demo &mdash; Built with Flask &amp; SQLAlchemy</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

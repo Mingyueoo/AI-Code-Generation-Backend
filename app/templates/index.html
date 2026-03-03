@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}AI Coding Assistant – Generate Code{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <!-- Hero -->
+    <div class="text-center mb-5">
+      <div class="display-1 mb-3">🤖</div>
+      <h1 class="fw-bold">AI Coding Assistant</h1>
+      <p class="lead text-muted">Describe a chart or visualization in plain English and get runnable Matplotlib code instantly.</p>
+    </div>
+
+    <!-- Generator Card -->
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-dark text-white">
+        <i class="bi bi-magic me-2"></i>Generate Visualization Code
+      </div>
+      <div class="card-body p-4">
+        <form action="{{ url_for('web.generate') }}" method="POST">
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Prompt</label>
+            <textarea name="prompt_text" class="form-control" rows="4"
+              placeholder="e.g. Plot a horizontal bar chart showing sales by region&#10;      Plot a pie chart of programming language popularity&#10;      Draw a scatter plot with correlation"></textarea>
+            <div class="form-text">Be descriptive — include chart type, data theme, style preferences.</div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Model</label>
+            <select name="model_name" class="form-select" id="modelSelect">
+              {% for m in models %}
+              <option value="{{ m }}">{{ m }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text" id="modelNote"></div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-lightning-fill me-2"></i>Generate Code
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick Examples -->
+    <div class="card border-0 mt-4 bg-transparent">
+      <div class="card-body px-0">
+        <h6 class="text-muted mb-3">Quick Examples</h6>
+        <div class="d-flex flex-wrap gap-2">
+          {% set examples = [
+            "Plot a bar chart of monthly revenue",
+            "Draw a scatter plot with a trend line",
+            "Create a pie chart for budget breakdown",
+            "Show a histogram of exam scores",
+            "Draw a heatmap of correlation matrix",
+            "Plot a horizontal bar chart"
+          ] %}
+          {% for ex in examples %}
+          <button class="btn btn-sm btn-outline-secondary example-btn" data-prompt="{{ ex }}">
+            {{ ex }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const modelNotes = {
+  "mock-gpt": "Simulated GPT model — generates realistic template code instantly.",
+  "mock-codellama": "Simulated CodeLlama — occasionally introduces bugs for realism.",
+  "openai-gpt4": "⚠️ Requires OPENAI_API_KEY in .env",
+  "anthropic-claude": "⚠️ Requires ANTHROPIC_API_KEY in .env",
+};
+const sel = document.getElementById("modelSelect");
+const note = document.getElementById("modelNote");
+function updateNote() { note.textContent = modelNotes[sel.value] || ""; }
+sel.addEventListener("change", updateNote);
+updateNote();
+
+document.querySelectorAll(".example-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelector("textarea[name=prompt_text]").value = btn.dataset.prompt;
+  });
+});
+</script>
+{% endblock %}

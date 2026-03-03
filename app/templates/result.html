@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Generated Code – AI Coding Assistant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <div class="d-flex align-items-center mb-4">
+      <a href="{{ url_for('web.index') }}" class="btn btn-outline-secondary btn-sm me-3">
+        <i class="bi bi-arrow-left"></i> New Prompt
+      </a>
+      <h4 class="mb-0">Result</h4>
+    </div>
+
+    <!-- Prompt Summary -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <small class="text-muted text-uppercase fw-semibold">Prompt</small>
+            <p class="mb-0 mt-1">{{ prompt.prompt_text }}</p>
+          </div>
+          <div class="col-md-2">
+            <small class="text-muted text-uppercase fw-semibold">Model</small>
+            <p class="mb-0 mt-1"><span class="badge bg-secondary">{{ prompt.model_name }}</span></p>
+          </div>
+          <div class="col-md-2">
+            <small class="text-muted text-uppercase fw-semibold">Status</small>
+            <p class="mb-0 mt-1">
+              {% if generation.status == 'generated' %}
+                <span class="badge bg-success">Generated</span>
+              {% else %}
+                <span class="badge bg-danger">Failed</span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Generation Error:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    {% if generation.generated_code %}
+    <!-- Code Block -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-code-square me-2"></i>Generated Python Code</span>
+        <button class="btn btn-sm btn-outline-light" id="copyBtn" onclick="copyCode()">
+          <i class="bi bi-clipboard me-1"></i>Copy
+        </button>
+      </div>
+      <div class="card-body p-0">
+        <pre class="m-0 p-4 bg-dark text-light rounded-bottom" id="codeBlock" style="max-height:500px;overflow:auto;font-size:0.875rem"><code>{{ generation.generated_code }}</code></pre>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-3 mb-4">
+      <form action="{{ url_for('web.evaluate', prompt_id=prompt.id) }}" method="POST">
+        <button class="btn btn-success">
+          <i class="bi bi-play-circle me-2"></i>Run Evaluation
+        </button>
+      </form>
+      <a href="{{ url_for('web.history') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-clock-history me-2"></i>View History
+      </a>
+    </div>
+
+    <!-- Evaluation Results -->
+    {% if generation.evaluations %}
+    {% set ev = generation.evaluations[-1] %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header">
+        <i class="bi bi-check2-circle me-2"></i>Evaluation Result
+      </div>
+      <div class="card-body">
+        {% if ev.result == 'correct' %}
+          <div class="d-flex align-items-center gap-3">
+            <span class="display-4">✅</span>
+            <div>
+              <h5 class="text-success mb-1">Correct</h5>
+              <p class="text-muted mb-0">Code executed successfully and produces a matplotlib visualization.</p>
+            </div>
+          </div>
+        {% elif ev.result == 'partially_correct' %}
+          <div class="d-flex align-items-center gap-3">
+            <span class="display-4">⚠️</span>
+            <div>
+              <h5 class="text-warning mb-1">Partially Correct</h5>
+              <p class="text-muted mb-0">{{ ev.error_message or "Code ran but quality check flagged an issue." }}</p>
+            </div>
+          </div>
+        {% else %}
+          <div class="d-flex align-items-center gap-3">
+            <span class="display-4">❌</span>
+            <div>
+              <h5 class="text-danger mb-1">Failed</h5>
+              <p class="text-muted mb-0">{{ ev.error_message or "Execution failed." }}</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyCode() {
+  const code = document.getElementById('codeBlock').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Copied!';
+    setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy', 2000);
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}History – AI Coding Assistant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4><i class="bi bi-clock-history me-2"></i>Prompt History</h4>
+  <a href="{{ url_for('web.index') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus me-1"></i>New Prompt
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="GET" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small text-muted">Model</label>
+        <select name="model_name" class="form-select form-select-sm">
+          <option value="">All Models</option>
+          {% for m in models %}
+          <option value="{{ m }}" {% if selected_model == m %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small text-muted">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All Statuses</option>
+          <option value="generated" {% if selected_status == 'generated' %}selected{% endif %}>Generated</option>
+          <option value="failed" {% if selected_status == 'failed' %}selected{% endif %}>Failed</option>
+          <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-outline-secondary btn-sm w-100">
+          <i class="bi bi-funnel me-1"></i>Filter
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if prompts %}
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Prompt</th>
+          <th>Model</th>
+          <th>Status</th>
+          <th>Evaluation</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in prompts %}
+        {% set latest_gen = p.generations[-1] if p.generations else None %}
+        {% set latest_eval = latest_gen.evaluations[-1] if latest_gen and latest_gen.evaluations else None %}
+        <tr>
+          <td class="text-muted small">{{ p.id }}</td>
+          <td style="max-width:280px;">
+            <span class="text-truncate d-block" title="{{ p.prompt_text }}">{{ p.prompt_text }}</span>
+          </td>
+          <td><span class="badge bg-secondary">{{ p.model_name }}</span></td>
+          <td>
+            {% if latest_gen %}
+              {% if latest_gen.status == 'generated' %}
+                <span class="badge bg-success">Generated</span>
+              {% elif latest_gen.status == 'failed' %}
+                <span class="badge bg-danger">Failed</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% endif %}
+            {% else %}
+              <span class="badge bg-light text-dark">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if latest_eval %}
+              {% if latest_eval.result == 'correct' %}
+                <span class="badge bg-success">✅ Correct</span>
+              {% elif latest_eval.result == 'partially_correct' %}
+                <span class="badge bg-warning text-dark">⚠️ Partial</span>
+              {% else %}
+                <span class="badge bg-danger">❌ Failed</span>
+              {% endif %}
+            {% else %}
+              <span class="text-muted small">Not evaluated</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              {% if latest_gen and latest_gen.generated_code %}
+              <button class="btn btn-xs btn-outline-secondary"
+                onclick="showCode({{ loop.index }}, `{{ latest_gen.generated_code | replace('`', '\\`') | replace('\n', '\\n') }}`)"
+                title="View Code">
+                <i class="bi bi-code"></i>
+              </button>
+              {% if not latest_eval %}
+              <form action="{{ url_for('web.evaluate', prompt_id=p.id) }}" method="POST" class="d-inline">
+                <button class="btn btn-xs btn-outline-success" title="Evaluate">
+                  <i class="bi bi-play"></i>
+                </button>
+              </form>
+              {% endif %}
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<nav class="mt-4">
+  <ul class="pagination pagination-sm justify-content-center">
+    {% if pagination.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ pagination.prev_num }}&model_name={{ selected_model }}&status={{ selected_status }}">Previous</a>
+    </li>
+    {% endif %}
+    {% for p in pagination.iter_pages() %}
+      {% if p %}
+      <li class="page-item {% if p == pagination.page %}active{% endif %}">
+        <a class="page-link" href="?page={{ p }}&model_name={{ selected_model }}&status={{ selected_status }}">{{ p }}</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ pagination.next_num }}&model_name={{ selected_model }}&status={{ selected_status }}">Next</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-inbox display-4 d-block mb-3"></i>
+  <p>No prompts found. <a href="{{ url_for('web.index') }}">Generate your first one!</a></p>
+</div>
+{% endif %}
+
+<!-- Code Modal -->
+<div class="modal fade" id="codeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h6 class="modal-title"><i class="bi bi-code-square me-2"></i>Generated Code</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <pre id="modalCode" class="m-0 p-4 bg-dark text-light" style="max-height:500px;overflow:auto;font-size:0.85rem"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showCode(idx, code) {
+  document.getElementById('modalCode').textContent = code.replace(/\\n/g, '\n');
+  new bootstrap.Modal(document.getElementById('codeModal')).show();
+}
+</script>
+{% endblock %}
