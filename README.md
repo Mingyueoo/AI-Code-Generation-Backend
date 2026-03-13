@@ -1,16 +1,12 @@
-# 🤖 AI Coding Assistant — Scalable AI Backend System
+# 🤖 Scalable AI Code Generation Backend
 A production-style AI backend system for generating, executing, and evaluating Python Matplotlib code using Large Language Models.
 
 This project demonstrates modern AI backend architecture including:
 
 - REST API design
-
 - asynchronous task processing
-
 - containerized deployment
-
 - scalable AI inference pipelines
-
 - database persistence and analytics
 
 It integrates local LLM inference (Ollama) and cloud models (OpenAI / Anthropic) while supporting secure code execution and system analytics.
@@ -77,9 +73,7 @@ Celery Worker processes task
 Install:
 
 - Docker
-
 - Docker Compose
-
 - Ollama (for local models)
 
 Download Ollama:
@@ -94,7 +88,7 @@ ollama pull llama3.2
 ### 2. Clone repository
 
 ```bash
-git clone https://github.com/Mingyueoo/AI-Coding-Assistant-FullStack.git
+git clone https://github.com/Mingyueoo/AI-Code-Generation-Backend.git
 cd ai_coding_assistant
 ```
 
@@ -132,9 +126,6 @@ Open:
 ```text
 http://localhost:5000
 ```
-
-
-
 ---
 
 ## Project Structure
@@ -261,9 +252,7 @@ failed
 System analytics includes:
 
 - model success rate
-
 - error distribution
-
 - prompt usage statistics
 
 Powered by:
@@ -277,39 +266,28 @@ Matplotlib
 ### Backend
 
 - Flask
-
 - SQLAlchemy
-
 - Celery
-
 - Redis
 
 ### Infrastructure
 
 - Docker
-
 - Docker Compose
-
 - PostgreSQL
 
 ### AI / ML
 
 - Ollama
-
 - OpenAI API
-
 - Anthropic Claude
 
 ### Data & Visualization
 
 - Pandas
-
 - Matplotlib
-
 - Frontend
-
 - Jinja2
-
 - Bootstrap
 
 ---
@@ -321,25 +299,19 @@ This project demonstrates several real-world backend engineering patterns:
 ### AI Backend Architecture
 
 - async AI task processing
-
 - queue-based job execution
-
 - scalable worker architecture
 
 ### Production Infrastructure
 
 - containerized services
-
 - environment-based configuration
-
 - persistent database layer
 
 ### Safe Code Execution
 
 - AST parsing
-
 - restricted execution environment
-
 - error classification
 
 ---
@@ -348,9 +320,6 @@ This project demonstrates several real-world backend engineering patterns:
 This project was built to demonstrate AI backend engineering skills, including:
 
 - LLM system integration
-
 - asynchronous processing pipelines
-
 - containerized deployment
-
 - database-driven AI services
